@@ -8,6 +8,19 @@ import largest_square as lq
 import operator
 import sys
 import os
+import time
+
+class TimeBlock:
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        self.start = time.time()
+        print "Entering block: %s" % self.name
+
+    def __exit__(self, t, value, traceback):
+        print "Block %s took: %fs" % (self.name, time.time() - self.start)
+        return True
 
 def drawrectangle(image, X, size):
     c = 0
@@ -22,49 +35,47 @@ def drawrectangle(image, X, size):
     print "Drew %d blocks" % c
 
 N_SAMPLES = 600*400
+DEBUG = False
 
 def mul_list(a, b):
     return map(int, [operator.mul(*x) for x in zip(a,b)])
 
 def find_uninteresting(img, filename):
-    data = np.array(img)
-    print "Resampling"
-    box_area = data.shape[0] * data.shape[1] / N_SAMPLES
-    box_length = np.sqrt(box_area)
-    scale = 1,1
-    if box_length > 0:
-        width, height = map(int, map(lambda x : x / box_length, data.shape[:-1]))
-        scale = data.shape[0] / float(width), data.shape[1] / float(height)
+    with TimeBlock("Resampling"):
+        box_area = img.size[1] * img.size[0] / N_SAMPLES
+        box_length = np.sqrt(box_area)
+        scale = 1,1
 
-        img_small = ImageOps.grayscale(img.resize((height, width)))
-        data = np.array(img_small)
-    else:
-        img = ImageOps.grayscale(img)
-        data = np.array(img)
+        if box_length > 0:
+            new_size = map(int, map(lambda x : x / box_length, img.size))
+            scale = [img.size[i]/float(new_size[i]) for i in range(len(new_size))]
 
-    print "locationifying"
-    blur = ndimage.gaussian_filter(data, 4)
-    locator = ndimage.gaussian_gradient_magnitude(blur, 8)
+            img_small = ImageOps.grayscale(img.resize(new_size))
+            data = np.array(img_small)
+        else:
+            img = ImageOps.grayscale(img)
+            data = np.array(img)
 
-    print "Finding squares"
-    sq_size, sq_loc = lq.max_size(locator, locator.min())
-    print sq_size, sq_loc
+    with TimeBlock("Locating"):
+        ndimage.gaussian_filter(data, 4, output=data)
+        ndimage.gaussian_gradient_magnitude(data, 8, output=data)
 
-    print "Plotting"
-    py.figure()
-    py.title("Original")
-    drawrectangle(data, sq_loc, sq_size)
-    py.imshow(data, interpolation=None)
-    py.colorbar()
-    py.savefig("%s-interesting.png" % filename)
+    with TimeBlock("Squarifying"):
+        sq_loc, sq_size = lq.max_size(data, data.min())
 
-    py.figure()
-    py.title("locator")
-    py.imshow(locator, interpolation=None)
-    py.colorbar()
-    py.savefig("%s-interesting-locator.png" % filename)
+    if DEBUG:
+        with TimeBlock("Plotting"):
+            py.figure()
+            py.title("locator")
+            drawrectangle(data, sq_loc, sq_size)
+            py.imshow(data, interpolation=None)
+            py.colorbar()
+            py.savefig("%s-interesting-locator.png" % filename)
 
-    return mul_list(sq_size, scale), mul_list(sq_loc, scale)
+    # Convert coordinates to PIL syntax (y, x) and scale
+    pil_size = mul_list(reversed(sq_size), scale)
+    pil_loc = mul_list(reversed(sq_loc), scale)
+    return pil_loc, pil_size
 
 if __name__ == "__main__":
     filename1 = sys.argv[1]
@@ -73,23 +84,23 @@ if __name__ == "__main__":
     img = Image.open(open(filename1))
     interesting = Image.open(open(filename2)).convert("RGBA")
 
-    best_size, best_loc = find_uninteresting(img, filename1)
-    print best_size, best_loc
-    interesting.thumbnail([best_size[1], best_size[0]])
+    with TimeBlock("Finding lame region"):
+        best_loc, best_size = find_uninteresting(img, filename1)
 
-    print "interestingilizing"
-    mid_inter = np.asarray([x / 2. for x in reversed(interesting.size)])
+    with TimeBlock("Thumnailing interesting"):
+        interesting.thumbnail(best_size)
+
+    mid_inter = np.asarray([x / 2. for x in interesting.size])
     mid_best = np.asarray([x / 2. for x in best_size])
     offset = map(int, mid_best - mid_inter)
 
-    print best_loc, img.size
-    if best_loc[1] + mid_best[1] > img.size[0] / 2:
+    if best_loc[0] + mid_best[0] > img.size[0] / 2:
         print "Flipping"
         interesting = interesting.transpose(Image.FLIP_LEFT_RIGHT)
 
-    img.paste(interesting, (best_loc[1] + offset[1], best_loc[0] + offset[0]), interesting)
+    img.paste(interesting, (best_loc[0] + offset[0], best_loc[1] + offset[1]), interesting)
 
-    print "saving"
-    name = os.path.basename(filename1)
-    img.save("./final/%s.jpg" % name)
+    with TimeBlock("Saving"):
+        name = os.path.basename(filename1)
+        img.save("./final/%s.jpg" % name)
 

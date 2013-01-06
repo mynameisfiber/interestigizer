@@ -1,5 +1,5 @@
 from collections import namedtuple
-from operator import mul
+from operator import mul, sub
 
 try:
     reduce = reduce
@@ -17,15 +17,15 @@ def max_size(mat, value=0):
     """
     it = iter(mat)
     hist = [int(el==value) for el in next(it, [])]
-    max_size, max_y, max_x = max_rectangle_size(hist)
+    (max_y, max_x), max_size = max_rectangle_size(hist)
     for i, row in enumerate(it):
         hist = [(1+h) if el == value else 0 for h, el in zip(hist, row)]
-        new_max_size, new_y, new_x = max_rectangle_size(hist)
+        (new_y, new_x), new_max_size = max_rectangle_size(hist)
         if reduce(mul, new_max_size) > reduce(mul, max_size):
             max_y = (i + 2) - new_y
             max_x = new_x
             max_size = new_max_size
-    return max_size, (max_y, max_x)
+    return (max_y, max_x), max_size
 
 def max_rectangle_size(histogram):
     """Find height, width of the largest rectangle that fits entirely under
@@ -73,8 +73,9 @@ def max_rectangle_size(histogram):
         max_size, max_x, max_y = max((max_size, max_x, max_y), ((height, (pos - start)), start, height), key=area)
 
 
-    return max_size, max_y, max_x
+    return (max_y, max_x), max_size
 
 def area(size):
-    return reduce(mul, size[0])
+    # Maybe add a term that prefers areas in the middle of the image?
+    return reduce(mul, size[0]) / (abs(reduce(sub, size[0])) + 1)**1.5
 
