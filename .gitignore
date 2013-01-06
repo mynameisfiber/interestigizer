@@ -1,2 +1,5 @@
 *.sw[op]
 .DS_Store
+test/
+final/
+*.pyc
