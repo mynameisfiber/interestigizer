@@ -21,7 +21,7 @@ def max_size(mat, value=0):
     for i, row in enumerate(it):
         hist = [(1+h) if el == value else 0 for h, el in zip(hist, row)]
         (new_y, new_x), new_max_size = max_rectangle_size(hist)
-        if reduce(mul, new_max_size) > reduce(mul, max_size):
+        if area((new_max_size, None)) > area((max_size, None)):
             max_y = (i + 2) - new_y
             max_x = new_x
             max_size = new_max_size

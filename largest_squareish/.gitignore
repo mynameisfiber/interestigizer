@@ -1,0 +1,4 @@
+*.so
+*.o
+*.dSYM
+largest_squareish_test
