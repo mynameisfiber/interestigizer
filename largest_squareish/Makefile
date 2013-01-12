@@ -12,4 +12,4 @@ test: largest_squareish.c largest_squareish_test.c
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -rf *.o largest_squareish_test largest_squareish_test.dSYM
+	rm -rf *.o *.so largest_squareish_test *.dSYM

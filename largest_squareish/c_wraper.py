@@ -2,6 +2,9 @@
 
 import numpy as np
 import ctypes as ct
+import os
+
+CWD = os.path.dirname(__file__)
 
 class Region(ct.Structure):
     _fields_ = [
@@ -10,8 +13,15 @@ class Region(ct.Structure):
         ("loc_x", ct.c_int),
         ("loc_y", ct.c_int),
     ]
+    _b_needsfree_ = True
 
-_lib_largest_squareish = np.ctypeslib.load_library('largest_squareish', '.')
+    def to_python(self):
+        return {
+            "size" : (self.size_x, self.size_y),
+            "location" : (self.loc_x, self.loc_y),
+        }
+
+_lib_largest_squareish = np.ctypeslib.load_library('largest_squareish', CWD)
 
 _lib_largest_squareish.largest_squareish_matrix.argtypes = [
     np.ctypeslib.ndpointer(dtype = np.double),
@@ -28,24 +38,15 @@ _lib_largest_squareish.largest_squareish_histogram.argtypes = [
 ]
 _lib_largest_squareish.largest_squareish_histogram.restype = ct.POINTER(Region)
 
-def _format_response(result_raw):
-    result = {}
-    for attribute in result_raw.contents._fields_:
-        attr = attribute[0]
-        result[attr] = getattr(result_raw.contents, attr)
-    return result
-
 def largest_squareish_matrix(mat, value=0):
-    assert isinstance(mat, np.ndarray)
-
-    rows, cols = mat.shape
-    result_raw =  _lib_largest_squareish.largest_squareish_matrix(mat, rows, cols, value)
-    return _format_response(result_raw)
+    tmp = np.asarray(mat, dtype=np.double)
+    rows, cols = tmp.shape
+    result_raw =  _lib_largest_squareish.largest_squareish_matrix(tmp, rows, cols, value)
+    return result_raw.contents.to_python()
 
 def largest_squareish_histogram(hist, value=0):
-    assert isinstance(hist, np.ndarray)
-
-    rows, = hist.shape
-    result_raw =  _lib_largest_squareish.largest_squareish_histogram(hist, rows, 0)
-    return _format_response(result_raw)
+    tmp = np.asarray(hist, dtype=np.intc)
+    rows, = tmp.shape
+    result_raw =  _lib_largest_squareish.largest_squareish_histogram(tmp, rows, 0)
+    return result_raw.contents.to_python()
 

@@ -3,7 +3,7 @@ from scipy import ndimage
 import pylab as py
 
 from PIL import Image, ImageOps
-import largest_square as lq
+import largest_squareish as lq
 
 import operator
 import sys
@@ -64,20 +64,20 @@ def find_uninteresting(img, filename):
 
     create_locator_inplace(data)
 
-    sq_loc, sq_size = lq.max_size(data, data.min())
+    boring_area = lq.largest_squareish_matrix(data, data.min())
 
     if DEBUG:
         with TimeBlock("Plotting"):
             py.figure()
             py.title("locator")
-            drawrectangle(data, sq_loc, sq_size)
+            drawrectangle(data, boring_area["location"], boring_area["size"])
             py.imshow(data, interpolation=None)
             py.colorbar()
             py.savefig("%s-interesting-locator.png" % filename)
 
     # Convert coordinates to PIL syntax (y, x) and scale
-    pil_size = mul_list(reversed(sq_size), scale)
-    pil_loc = mul_list(reversed(sq_loc), scale)
+    pil_size = mul_list(reversed(boring_area["size"]), scale)
+    pil_loc = mul_list(reversed(boring_area["location"]), scale)
     return pil_loc, pil_size
 
 def insert_interesting_inplace(image, interesting, interesting_loc, interesting_size):

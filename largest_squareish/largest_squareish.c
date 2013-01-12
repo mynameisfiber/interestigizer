@@ -100,7 +100,10 @@ void *largest_squareish_matrix(double *histogram, int N, int M, double value) {
     int n;
     for (n=0; n<N; n++) {
         for (m=0; m<M; m++) {
-            scanline[m] += (histogram[n*M + m] == value ? 1 : 0);
+            if (histogram[n*M + m] == value)
+                scanline[m] += 1;
+            else
+                scanline[m] = 0;
         }
         struct Region *newRegion = largest_squareish_histogram(scanline, M, n);
         newRegion->loc_y = n + 1 - newRegion->loc_y;
