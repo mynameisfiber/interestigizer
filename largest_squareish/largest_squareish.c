@@ -3,6 +3,12 @@
 #include <math.h>
 #include "largest_squareish.h"
 
+int LQISH_TEST = 0;
+int largest_squareish_set_test(int set) {
+    LQISH_TEST = set;
+    return LQISH_TEST;
+}
+
 void print_region(struct Region *reg) {
     printf("{%d, %d, %d, %d}\n", reg->size_x, reg->size_y, reg->loc_x, reg->loc_y);
 }
@@ -119,15 +125,13 @@ void *largest_squareish_matrix(double *histogram, int N, int M, double value) {
     return maxRegion;
 }
 
-#ifdef TEST
 double inline area(int x, int y) {
-    return x*y; 
+    if (LQISH_TEST == 1) {
+        return x*y; 
+    } else {
+        return x*y / pow(fabs(x - y) + 1, 1.5);
+    }
 }
-#else
-double inline area(int x, int y) {
-    return x*y / pow(fabs(x - y), 1.5);
-}
-#endif
 
 int is_larger(struct Region *maxRegion, struct Region *other) {
     double max_area = area(maxRegion->size_x, maxRegion->size_y);
@@ -140,20 +144,3 @@ int is_larger_params(struct Region *maxRegion, int start, int pos, int height) {
    double other_area = area(pos-start, height);
    return other_area - max_area;
 }
-
-//int main(void) {
-//    double histogram[500];
-//
-//    sranddev();
-//    int i, b;
-//    for (i=0; i < 10000; i++) {
-//        int j;
-//        for (j=0; j<500; j++) {
-//            histogram[j] = 10.0 * rand() / RAND_MAX;
-//        }
-//        struct Region *maxRegion = largest_squareish_histogram(histogram, 10, 0);
-//        free(maxRegion);
-//    }
-//
-//    return 0;
-//}

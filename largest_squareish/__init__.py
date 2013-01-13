@@ -1,1 +1,1 @@
-from c_wraper import largest_squareish_matrix, largest_squareish_histogram
+from wraper import solve_matrix, solve_histogram, set_test

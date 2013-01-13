@@ -38,13 +38,21 @@ _lib_largest_squareish.largest_squareish_histogram.argtypes = [
 ]
 _lib_largest_squareish.largest_squareish_histogram.restype = ct.POINTER(Region)
 
-def largest_squareish_matrix(mat, value=0):
+_lib_largest_squareish.largest_squareish_set_test.argtypes = [
+    ct.c_int,
+]
+_lib_largest_squareish.largest_squareish_histogram.restype = ct.c_int
+
+def set_test(val):
+     return _lib_largest_squareish.largest_squareish_set_test(val)
+
+def solve_matrix(mat, value=0):
     tmp = np.asarray(mat, dtype=np.double)
     rows, cols = tmp.shape
     result_raw =  _lib_largest_squareish.largest_squareish_matrix(tmp, rows, cols, value)
     return result_raw.contents.to_python()
 
-def largest_squareish_histogram(hist, value=0):
+def solve_histogram(hist, value=0):
     tmp = np.asarray(hist, dtype=np.intc)
     rows, = tmp.shape
     result_raw =  _lib_largest_squareish.largest_squareish_histogram(tmp, rows, 0)
