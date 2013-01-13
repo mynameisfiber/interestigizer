@@ -19,7 +19,7 @@ void *largest_squareish_histogram(int *histogram, int N, int row) {
 
     struct Region *maxRegion = malloc(sizeof(struct Region));
     maxRegion->size_x = 0;
-    maxRegion->size_y = 0.0;
+    maxRegion->size_y = 0;
     maxRegion->loc_x = 0;
 
     int height;
@@ -136,11 +136,11 @@ double inline area(int x, int y) {
 int is_larger(struct Region *maxRegion, struct Region *other) {
     double max_area = area(maxRegion->size_x, maxRegion->size_y);
     double other_area = area(other->size_x, other->size_y);
-    return other_area - max_area;
+    return (other_area - max_area) > 0;
 }
 
 int is_larger_params(struct Region *maxRegion, int start, int pos, int height) {
    double max_area = area(maxRegion->size_x, maxRegion->size_y);
    double other_area = area(pos-start, height);
-   return other_area - max_area;
+   return (other_area - max_area) > 0;
 }
