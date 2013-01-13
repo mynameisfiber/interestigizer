@@ -1,9 +1,10 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_from_directory, redirect, url_for
 import cStringIO
 
 import interestingizer
 from PIL import Image
 
+import md5
 import random
 import os
 
@@ -37,26 +38,36 @@ class WSGICopyBody(object):
 
 app.wsgi_app = WSGICopyBody(app.wsgi_app)
 
-items_base = "./images/"
-items = [Image.open(os.path.join(items_base, filename)).convert("RGBA") for filename in os.listdir(items_base)]
+TMP_DIR = "./tmp"
+ITEMS_BASE = "./images/"
+items = [Image.open(os.path.join(ITEMS_BASE, filename)).convert("RGBA") for filename in os.listdir(ITEMS_BASE)]
+
 
 @app.route("/ping")
 def ping():
     return "OK"
 
-def serve_pil_image(pil_img):
-    img_io = cStringIO.StringIO()
-    pil_img.save(img_io, 'JPEG', quality=70)
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/jpeg')
+
+def cache_image(pil_img, key):
+    global TMP_DIR
+    with open(os.path.join(TMP_DIR, key), "w+") as fd:
+        pil_img.save(fd, 'JPEG', quality=70)
+    return key
+
+
+@app.route("/cache/<key>")
+def cache(key):
+    global TMP_DIR
+    return send_from_directory(TMP_DIR, key, mimetype='image/jpeg')
+
 
 @app.route("/interestingize", methods=["POST",])
 def interestingize():
-    #image_raw = request.data
     image_raw = request.environ['body_copy']
     if image_raw:
         try:
             image = Image.open(cStringIO.StringIO(image_raw))
+            key = md5.md5(image_raw).hexdigest()
         except IOError:
             return "Could not decode image", 500
 
@@ -64,7 +75,8 @@ def interestingize():
 
         try:
             better_image = interestingizer.interestingize(image, item)
-            return serve_pil_image(better_image)
+            key = cache_image(better_image, key)
+            return redirect(url_for('cache', key=key))
         except:
             return "Could not interestingize", 500
     else:
