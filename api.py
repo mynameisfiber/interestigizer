@@ -7,8 +7,6 @@ import md5
 import random
 import os
 
-import logging
-
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16Mb upload file limit
 
@@ -47,16 +45,14 @@ def interestingize():
     if image_raw:
         try:
             image = Image.open(image_raw)
-        except IOError, e:
-            logging.info("Could not decode incoming image: %s", e)
+        except IOError:
             return "Could not decode image", 500
 
         item = random.choice(items).copy()
-
         try:
             better_image = interestingizer.interestingize(image, item)
         except Exception, e:
-            logging.critical("Could not run interestingize algorithm: %s", e)
+            print "Could not run interestingize algorithm: %s" % e
             return "Could not interestingize", 500
 
         key = cache_image(better_image)
