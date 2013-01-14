@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, redirect, url_for
+from flask import Flask, request, send_from_directory, redirect, url_for, render_template
 import cStringIO
 
 import interestingizer
@@ -9,34 +9,6 @@ import random
 import os
 
 app = Flask(__name__)
-
-class WSGICopyBody(object):
-    def __init__(self, application):
-        self.application = application
-
-    def __call__(self, environ, start_response):
-        length = environ.get('CONTENT_LENGTH', '0')
-        length = 0 if length == '' else int(length)
-
-        body = environ['wsgi.input'].read(length)
-        environ['body_copy'] = body
-        environ['wsgi.input'] = cStringIO.StringIO(body)
-
-        # Call the wrapped application
-        app_iter = self.application(environ, 
-                                    self._sr_callback(start_response))
-
-        # Return modified response
-        return app_iter
-
-    def _sr_callback(self, start_response):
-        def callback(status, headers, exc_info=None):
-
-            # Call upstream start_response
-            start_response(status, headers, exc_info)
-        return callback
-
-app.wsgi_app = WSGICopyBody(app.wsgi_app)
 
 TMP_DIR = "./tmp"
 ITEMS_BASE = "./images/"
@@ -61,12 +33,18 @@ def cache(key):
     return send_from_directory(TMP_DIR, key, mimetype='image/jpeg')
 
 
+@app.route("/test")
+def test_form():
+    return render_template("simple_form.html")
+
+
 @app.route("/interestingize", methods=["POST",])
 def interestingize():
-    image_raw = request.environ['body_copy']
+    print request.files, request.form
+    image_raw = request.files.get("image") #request.environ['body_copy']
     if image_raw:
         try:
-            image = Image.open(cStringIO.StringIO(image_raw))
+            image = Image.open(image_raw)
             key = md5.md5(image_raw).hexdigest()
         except IOError:
             return "Could not decode image", 500
