@@ -4,3 +4,4 @@ test/
 final/
 *.pyc
 build/
+venv/
