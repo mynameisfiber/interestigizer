@@ -1,5 +1,4 @@
 from flask import Flask, request, send_from_directory, redirect, url_for, render_template
-import cStringIO
 
 import interestingizer
 from PIL import Image
@@ -23,6 +22,7 @@ def ping():
 
 def cache_image(pil_img, key):
     global TMP_DIR
+    key = md5.md5(pil_img.tostring()).hexdigest()
     with open(os.path.join(TMP_DIR, key), "w+") as fd:
         pil_img.save(fd, 'JPEG', quality=70)
     return key
@@ -45,7 +45,6 @@ def interestingize():
     if image_raw:
         try:
             image = Image.open(image_raw)
-            key = md5.md5(image.tostring()).hexdigest()
         except IOError:
             return "Could not decode image", 500
 
@@ -53,12 +52,12 @@ def interestingize():
 
         try:
             better_image = interestingizer.interestingize(image, item)
-            key = cache_image(better_image, key)
+            key = cache_image(better_image)
             return redirect(url_for('cache', key=key))
         except:
             return "Could not interestingize", 500
     else:
-        return "Must provide image in post body", 500
+        return "Must provide image in form field 'image'", 500
 
 
 if __name__ == "__main__":
