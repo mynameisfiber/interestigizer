@@ -9,6 +9,12 @@
 # [2] http://stackoverflow.com/questions/9819968/running-scipy-on-heroku
 
 from distutils.core import setup, Extension
+import os
+
+try:
+    os.makedirs("./tmp")
+except:
+    pass
 
 setup(
     name = 'interestingizer',
@@ -30,3 +36,4 @@ setup(
         "flask",
     ],
 )
+

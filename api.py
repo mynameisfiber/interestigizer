@@ -41,12 +41,11 @@ def test_form():
 
 @app.route("/interestingize", methods=["POST",])
 def interestingize():
-    print request.files, request.form
-    image_raw = request.files.get("image") #request.environ['body_copy']
+    image_raw = request.files.get("image")
     if image_raw:
         try:
             image = Image.open(image_raw)
-            key = md5.md5(image_raw).hexdigest()
+            key = md5.md5(image.tostring()).hexdigest()
         except IOError:
             return "Could not decode image", 500
 
