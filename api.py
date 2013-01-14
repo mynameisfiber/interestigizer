@@ -7,6 +7,8 @@ import md5
 import random
 import os
 
+import logging
+
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16Mb upload file limit
 
@@ -20,7 +22,7 @@ def ping():
     return "OK"
 
 
-def cache_image(pil_img, key):
+def cache_image(pil_img):
     global TMP_DIR
     key = md5.md5(pil_img.tostring()).hexdigest()
     with open(os.path.join(TMP_DIR, key), "w+") as fd:
@@ -45,17 +47,20 @@ def interestingize():
     if image_raw:
         try:
             image = Image.open(image_raw)
-        except IOError:
+        except IOError, e:
+            logging.info("Could not decode incoming image: %s", e)
             return "Could not decode image", 500
 
         item = random.choice(items).copy()
 
         try:
             better_image = interestingizer.interestingize(image, item)
-            key = cache_image(better_image)
-            return redirect(url_for('cache', key=key))
-        except:
+        except Exception, e:
+            logging.critical("Could not run interestingize algorithm: %s", e)
             return "Could not interestingize", 500
+
+        key = cache_image(better_image)
+        return redirect(url_for('cache', key=key))
     else:
         return "Must provide image in form field 'image'", 500
 
