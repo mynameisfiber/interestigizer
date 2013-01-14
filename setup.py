@@ -13,4 +13,11 @@ setup(
     ext_modules = [
         Extension('largest_squareish.interestingizer', ['largest_squareish/src/largest_squareish.c']),
     ],
+
+    requires = [
+        "PIL",
+        "numpy",
+        "scipy",
+        "flask",
+    ],
 )
