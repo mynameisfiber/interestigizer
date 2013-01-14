@@ -19,7 +19,7 @@ setup(
     url = 'http://github.com/mynameisfiber/interestingizer/',
 
     ext_modules = [
-        Extension('largest_squareish.interestingizer', 
+        Extension('largest_squareish.largest_squareish', 
             ['largest_squareish/src/largest_squareish.c']),
     ],
 
