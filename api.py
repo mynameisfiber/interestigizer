@@ -9,6 +9,7 @@ import random
 import os
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16Mb upload file limit
 
 TMP_DIR = "./tmp"
 ITEMS_BASE = "./images/"
