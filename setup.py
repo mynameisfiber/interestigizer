@@ -25,7 +25,7 @@ setup(
     url = 'http://github.com/mynameisfiber/interestingizer/',
 
     ext_modules = [
-        Extension('largest_squareish.largest_squareish', 
+        Extension('largest_squareish.largest_squareish',
             ['largest_squareish/src/largest_squareish.c']),
     ],
 
@@ -34,6 +34,6 @@ setup(
         "numpy",
         "scipy",
         "flask",
+        "requests",
     ],
 )
-
