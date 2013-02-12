@@ -48,7 +48,6 @@ def interestingize(animal="cow"):
     if animal not in ANIMALS:
         abort(404)
     image_raw = request.files.get("image")
-    print(image_raw)
     if image_raw:
         try:
             image = Image.open(image_raw)
