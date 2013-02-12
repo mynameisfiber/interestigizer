@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <title>Make your images infinitely more interesting</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome.min.css') }}" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='screen.css') }}" type="text/css" media="screen" charset="utf-8">
+
+    <script src="{{ url_for('static', filename='modernizr.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script>
+
+        if (!Modernizr.draganddrop) {
+            alert("Get a better browser!");
+            window.location = "http://www.google.com/chrome";
+        }
+
+    </script>
+
+</head>
+<body>
+
+    <div id="drag-dest">
+        <input id="fileupload" type="file" name="image" data-url="/interestingize">
+        <div id="drag-before">
+            <div class="drag-icon">
+                <i class="icon-download-alt"></i>
+            </div>
+            <div class="drag-text">
+                Drop an image here.
+            </div>
+        </div>
+        <div id="drag-after">
+            <div class="drag-icon">
+                <i class="icon-refresh icon-spin"></i>
+            </div>
+            <div class="drag-text">
+                Working some magic…
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='d3.v3.min.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='jquery-1.9.1.min.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='upload/jquery.ui.widget.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='upload/jquery.iframe-transport.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='upload/jquery.fileupload.js') }}" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='drag.js') }}" type="text/javascript" charset="utf-8"></script>
+
+</body>
+</html>
