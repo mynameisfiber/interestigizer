@@ -18,7 +18,7 @@ except:
 
 setup(
     name = 'interestingizer',
-    version = '0.1',
+    version = '0.22',
     description = 'Turns ordinary images into interesting ones!',
     author = 'Micha Gorelick',
     author_email = 'mynameisfiber@gmail.com',
