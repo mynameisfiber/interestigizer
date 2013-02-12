@@ -47,13 +47,11 @@ def insert_interesting_inplace(image, interesting, interesting_loc, interesting_
     mid_best = np.asarray([x / 2. for x in interesting_size])
     offset = map(int, mid_best - mid_inter)
     if interesting_loc[0] + mid_best[0] > image.size[0] / 2:
-        print "Flipping"
         interesting = interesting.transpose(Image.FLIP_LEFT_RIGHT)
     image.paste(interesting, (interesting_loc[0] + offset[0], interesting_loc[1] + offset[1]), interesting)
 
 def interestingize(image, interesting):
     best_loc, best_size = find_uninteresting(image)
-    print best_loc, best_size
     interesting.thumbnail(best_size)
     insert_interesting_inplace(image, interesting, best_loc, best_size)
     return image
