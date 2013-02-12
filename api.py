@@ -3,6 +3,8 @@ from flask import (Flask, request, send_from_directory, redirect, url_for,
 
 import interestingizer
 from PIL import Image
+from StringIO import StringIO
+import requests
 
 import json
 import md5
@@ -38,33 +40,53 @@ def cache(key):
 
 
 @app.route("/test")
-def test_form():
+def index():
     return render_template("index.html")
 
 
-@app.route("/interestingize", methods=["POST", ])
-@app.route("/interestingize/<animal>", methods=["POST", ])
+@app.route("/interestingize", methods=["POST", "GET"])
+@app.route("/interestingize/<animal>", methods=["POST", "GET"])
 def interestingize(animal="cow"):
     if animal not in ANIMALS:
         abort(404)
-    image_raw = request.files.get("image")
-    if image_raw:
+    if request.method == "POST":
+        image_raw = request.files.get("image")
+        if image_raw is None:
+            return "Must provide image in form field 'image'", 500
+
         try:
             image = Image.open(image_raw)
         except IOError:
             return "Could not decode image", 500
 
-        item = random.choice(items[animal]).copy()
-        try:
-            better_image = interestingizer.interestingize(image, item)
-        except Exception, e:
-            print "Could not run interestingize algorithm: %s" % e
-            return "Could not interestingize", 500
-
-        key = cache_image(better_image)
-        return json.dumps(url_for('cache', key=key))
     else:
-        return "Must provide image in form field 'image'", 500
+        url = request.values.get("src", None)
+        if url is None:
+            return redirect(url_for("index"))
+
+        r = requests.get(url)
+        if r.status_code != requests.codes.ok:
+            r.raise_for_status()
+
+        try:
+            image = Image.open(StringIO(r.content))
+        except IOError:
+            return "Could not decode image", 500
+
+    item = random.choice(items[animal]).copy()
+    try:
+        better_image = interestingizer.interestingize(image, item)
+    except Exception, e:
+        print "Could not run interestingize algorithm: %s" % e
+        return "Could not interestingize", 500
+
+    key = cache_image(better_image)
+
+    new_url = url_for('cache', key=key)
+    if request.method == "POST":
+        return json.dumps(new_url)
+
+    return redirect(new_url)
 
 
 if __name__ == "__main__":
