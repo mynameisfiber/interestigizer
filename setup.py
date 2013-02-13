@@ -8,7 +8,8 @@
 # [1] https://github.com/heroku/heroku-buildpack-python
 # [2] http://stackoverflow.com/questions/9819968/running-scipy-on-heroku
 
-from distutils.core import setup, Extension
+#from distutils.core import setup, Extension
+from setuptools import setup, Extension
 import os
 
 try:
@@ -29,11 +30,11 @@ setup(
             ['largest_squareish/src/largest_squareish.c']),
     ],
 
-    requires = [
+    install_requires = [
+        "flask",
+        "requests",
         "PIL",
         "numpy",
         "scipy",
-        "flask",
-        "requests",
     ],
 )
