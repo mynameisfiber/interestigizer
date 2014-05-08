@@ -31,11 +31,11 @@ except:
 
 setup(
     name='interestingizer',
-    version='0.22',
+    version='0.3.0',
     description='Turns ordinary images into interesting ones!',
     author='Micha Gorelick',
     author_email='mynameisfiber@gmail.com',
-    url='http://github.com/mynameisfiber/interestingizer/',
+    url='http://github.com/fish2000/interestingizer/',
 
     ext_modules=[
         Extension('largest_squareish.squareish', [
