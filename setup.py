@@ -52,7 +52,7 @@ setup(
     install_requires = [
         "flask",
         "requests",
-        "PIL",
+        "Pillow",
         "numpy",
         "scipy",
     ],
