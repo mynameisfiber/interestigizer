@@ -13,7 +13,7 @@ struct Stack {
     struct Stack *prev;
 };
 
-int largest_squareish_set_test(int set);
+int largest_squareish_set_test(int test_val);
 void print_region(struct Region *reg);
 
 void *largest_squareish_histogram(int *histogram, int N, int row);

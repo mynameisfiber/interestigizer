@@ -4,8 +4,8 @@
 #include "largest_squareish.h"
 
 int LQISH_TEST = 0;
-int largest_squareish_set_test(int set) {
-    LQISH_TEST = set;
+int largest_squareish_set_test(int test_val) {
+    LQISH_TEST = test_val;
     return LQISH_TEST;
 }
 
