@@ -1,8 +1,7 @@
 *.sw[op]
 .DS_Store
-test/
-final/
 *.pyc
+*.o
+*.so
 build/
-venv/
 tmp
